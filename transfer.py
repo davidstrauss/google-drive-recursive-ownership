@@ -39,9 +39,9 @@ def show_info(service, drive_item, prefix, permission_id):
         pprint.pprint(drive_item)
 
 def grant_ownership(service, drive_item, prefix, permission_id):
-    full_path = os.path.join(prefix, drive_item['title'])
+    full_path = os.path.join(os.path.sep.join(prefix), drive_item['title']).encode('utf-8', 'replace')
 
-    pprint.pprint(drive_item)
+    #pprint.pprint(drive_item)
 
     current_user_owns = False
     for owner in drive_item['owners']:
@@ -51,7 +51,7 @@ def grant_ownership(service, drive_item, prefix, permission_id):
         elif owner['isAuthenticatedUser']:
             current_user_owns = True
 
-    print('Item {} needs updated permissions.'.format(full_path))
+    print('Item {} needs ownership granted.'.format(full_path))
 
     if not current_user_owns:
         print('    But, current user does not own the item.'.format(full_path))
@@ -67,11 +67,15 @@ def grant_ownership(service, drive_item, prefix, permission_id):
         else:
             print('An error occurred: {}'.format(e))
 
-def process_all_files(service, callback=None, callback_args=None, minimum_prefix='', current_prefix='', folder_id='root'):
-    print('Gathing file listings for prefix {}...'.format(current_prefix))
-
+def process_all_files(service, callback=None, callback_args=None, minimum_prefix=None, current_prefix=None, folder_id='root'):
+    if minimum_prefix is None:
+        minimum_prefix = []
+    if current_prefix is None:
+        current_prefix = []
     if callback_args is None:
         callback_args = []
+
+    print('Gathing file listings for prefix {}...'.format(current_prefix))
 
     page_token = None
     while True:
@@ -84,16 +88,18 @@ def process_all_files(service, callback=None, callback_args=None, minimum_prefix
                 item = service.files().get(fileId=child['id']).execute()
                 #pprint.pprint(item)
                 if item['kind'] == 'drive#file':
+                    if current_prefix[:len(minimum_prefix)] == minimum_prefix:
+                        print('File: {} ({}, {})'.format(item['title'].encode('utf-8', 'replace'), current_prefix, item['id']))
+                        callback(service, item, current_prefix, **callback_args)
                     if item['mimeType'] == 'application/vnd.google-apps.folder':
                         print('Folder: {} ({}, {})'.format(item['title'], current_prefix, item['id']))
-                        next_prefix = os.path.join(current_prefix, item['title'])
+                        next_prefix = current_prefix + [item['title']]
                         comparison_length = min(len(next_prefix), len(minimum_prefix))
+                        print('Comparing:')
+                        print(minimum_prefix[:comparison_length])
+                        print(next_prefix[:comparison_length])
                         if minimum_prefix[:comparison_length] == next_prefix[:comparison_length]:
                             process_all_files(service, callback, callback_args, minimum_prefix, next_prefix, item['id'])
-                    elif current_prefix.startswith(minimum_prefix):
-                        print('File: {} ({}, {})'.format(item['title'], current_prefix, item['id']))
-                        if current_prefix.startswith(minimum_prefix):
-                            callback(service, item, current_prefix, **callback_args)
             page_token = children.get('nextPageToken')
             if not page_token:
                 break
@@ -102,11 +108,13 @@ def process_all_files(service, callback=None, callback_args=None, minimum_prefix
             break
 
 if __name__ == '__main__':
-    minimum_prefix = sys.argv[1]
-    new_owner = sys.argv[2]
+    minimum_prefix = sys.argv[1].decode('utf-8')
+    new_owner = sys.argv[2].decode('utf-8')
     print('Changing all files at path "{}" to owner "{}"'.format(minimum_prefix, new_owner))
+    minimum_prefix_split = minimum_prefix.split(os.path.sep)
+    print('Prefix: {}'.format(minimum_prefix_split))
     service = get_drive_service()
     permission_id = get_permission_id_for_email(service, new_owner)
     print('User {} is permission ID {}.'.format(new_owner, permission_id))
-    process_all_files(service, grant_ownership, {'permission_id': permission_id}, minimum_prefix)
+    process_all_files(service, grant_ownership, {'permission_id': permission_id}, minimum_prefix_split)
     #print(files)
