@@ -60,12 +60,18 @@ def grant_ownership(service, drive_item, prefix, permission_id):
     try:
         permission = service.permissions().get(fileId=drive_item['id'], permissionId=permission_id).execute()
         permission['role'] = 'owner'
+        print('    Upgrading existing permissions to ownership.')
         return service.permissions().update(fileId=drive_item['id'], permissionId=permission_id, body=permission, transferOwnership=True).execute()
     except apiclient.errors.HttpError as e:
-        if e.resp.status == 404:
-            print('    But, new owner needs some permissions before being granted ownership.')
-        else:
+        if e.resp.status != 404:
             print('An error occurred: {}'.format(e))
+            return
+
+    print('    Creating new ownership permissions.')
+    permission = {'role': 'owner',
+                  'type': 'user',
+                  'id': permission_id}
+    service.permissions().insert(fileId=drive_item['id'], body=permission, emailMessage='Automated recursive transfer of ownership.')
 
 def process_all_files(service, callback=None, callback_args=None, minimum_prefix=None, current_prefix=None, folder_id='root'):
     if minimum_prefix is None:
@@ -95,9 +101,6 @@ def process_all_files(service, callback=None, callback_args=None, minimum_prefix
                         print('Folder: {} ({}, {})'.format(item['title'], current_prefix, item['id']))
                         next_prefix = current_prefix + [item['title']]
                         comparison_length = min(len(next_prefix), len(minimum_prefix))
-                        print('Comparing:')
-                        print(minimum_prefix[:comparison_length])
-                        print(next_prefix[:comparison_length])
                         if minimum_prefix[:comparison_length] == next_prefix[:comparison_length]:
                             process_all_files(service, callback, callback_args, minimum_prefix, next_prefix, item['id'])
             page_token = children.get('nextPageToken')
