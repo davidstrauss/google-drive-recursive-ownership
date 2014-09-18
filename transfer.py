@@ -64,14 +64,17 @@ def grant_ownership(service, drive_item, prefix, permission_id):
         return service.permissions().update(fileId=drive_item['id'], permissionId=permission_id, body=permission, transferOwnership=True).execute()
     except apiclient.errors.HttpError as e:
         if e.resp.status != 404:
-            print('An error occurred: {}'.format(e))
+            print('An error occurred updating ownership permissions: {}'.format(e))
             return
 
     print('    Creating new ownership permissions.')
     permission = {'role': 'owner',
                   'type': 'user',
                   'id': permission_id}
-    service.permissions().insert(fileId=drive_item['id'], body=permission, emailMessage='Automated recursive transfer of ownership.')
+    try:
+        service.permissions().insert(fileId=drive_item['id'], body=permission, emailMessage='Automated recursive transfer of ownership.').execute()
+    except apiclient.errors.HttpError as e:
+        print('An error occurred inserting ownership permissions: {}'.format(e))
 
 def process_all_files(service, callback=None, callback_args=None, minimum_prefix=None, current_prefix=None, folder_id='root'):
     if minimum_prefix is None:
