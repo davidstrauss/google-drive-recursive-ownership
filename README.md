@@ -5,7 +5,7 @@ Setup
 --
 
     git clone https://github.com/davidstrauss/google-drive-recursive-ownership
-    pip-python install --upgrade google-api-python-client
+    pip install --upgrade google-api-python-client
 
 Usage
 --
