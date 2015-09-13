@@ -101,7 +101,7 @@ def process_all_files(service, callback=None, callback_args=None, minimum_prefix
                         print('File: {} ({}, {})'.format(item['title'].encode('utf-8', 'replace'), current_prefix, item['id']))
                         callback(service, item, current_prefix, **callback_args)
                     if item['mimeType'] == 'application/vnd.google-apps.folder':
-                        print('Folder: {} ({}, {})'.format(item['title'], current_prefix, item['id']))
+                        print(u'Folder: {} ({}, {})'.format(item['title'], current_prefix, item['id']))
                         next_prefix = current_prefix + [item['title']]
                         comparison_length = min(len(next_prefix), len(minimum_prefix))
                         if minimum_prefix[:comparison_length] == next_prefix[:comparison_length]:
