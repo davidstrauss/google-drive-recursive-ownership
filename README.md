@@ -11,3 +11,4 @@ Usage
 --
 
     python transfer.py PATH-PREFIX NEW-OWNER-EMAIL
+    NOTE: PATH-PREFIX assumed use of "\"

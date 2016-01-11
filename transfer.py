@@ -84,7 +84,7 @@ def process_all_files(service, callback=None, callback_args=None, minimum_prefix
     if callback_args is None:
         callback_args = []
 
-    print('Gathing file listings for prefix {}...'.format(current_prefix))
+    print('Gathering file listings for prefix {}...'.format(current_prefix))
 
     page_token = None
     while True:
