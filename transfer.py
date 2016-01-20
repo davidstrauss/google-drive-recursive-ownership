@@ -38,7 +38,7 @@ def show_info(service, drive_item, prefix, permission_id):
         print('No title for this item:')
         pprint.pprint(drive_item)
 
-def grant_ownership(service, drive_item, prefix, permission_id):
+def grant_ownership(service, drive_item, prefix, permission_id, show_already_owned):
     full_path = os.path.join(os.path.sep.join(prefix), drive_item['title']).encode('utf-8', 'replace')
 
     #pprint.pprint(drive_item)
@@ -46,7 +46,8 @@ def grant_ownership(service, drive_item, prefix, permission_id):
     current_user_owns = False
     for owner in drive_item['owners']:
         if owner['permissionId'] == permission_id:
-            print('Item {} already has the right owner.'.format(full_path))
+            if show_already_owned:
+                print('Item {} already has the right owner.'.format(full_path))
             return
         elif owner['isAuthenticatedUser']:
             current_user_owns = True
@@ -84,7 +85,7 @@ def process_all_files(service, callback=None, callback_args=None, minimum_prefix
     if callback_args is None:
         callback_args = []
 
-    print('Gathing file listings for prefix {}...'.format(current_prefix))
+    print('Gathering file listings for prefix {}...'.format(current_prefix))
 
     page_token = None
     while True:
@@ -116,11 +117,12 @@ def process_all_files(service, callback=None, callback_args=None, minimum_prefix
 if __name__ == '__main__':
     minimum_prefix = sys.argv[1].decode('utf-8')
     new_owner = sys.argv[2].decode('utf-8')
+    show_already_owned = False if len(sys.argv) > 3 and sys.argv[3].decode('utf-8') == 'false' else True
     print('Changing all files at path "{}" to owner "{}"'.format(minimum_prefix, new_owner))
     minimum_prefix_split = minimum_prefix.split(os.path.sep)
     print('Prefix: {}'.format(minimum_prefix_split))
     service = get_drive_service()
     permission_id = get_permission_id_for_email(service, new_owner)
     print('User {} is permission ID {}.'.format(new_owner, permission_id))
-    process_all_files(service, grant_ownership, {'permission_id': permission_id}, minimum_prefix_split)
+    process_all_files(service, grant_ownership, {'permission_id': permission_id, 'show_already_owned': show_already_owned }, minimum_prefix_split)
     #print(files)
