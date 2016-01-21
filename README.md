@@ -11,4 +11,6 @@ Usage
 --
 
     python transfer.py PATH-PREFIX NEW-OWNER-EMAIL SHOW-ALREADY-OWNER
-    NOTE: PATH-PREFIX assumed use of "\". SHOW-ALREADY-OWNER "true"|"false" (default true) to hide feedback for files already set correctly
+
+- PATH-PREFIX assumes use of "/" or "\" as appropriate for your operating system.
+- SHOW-ALREADY-OWNER "true"|"false" (default true) to hide feedback for files already set correctly
