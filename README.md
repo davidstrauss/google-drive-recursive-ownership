@@ -1,6 +1,11 @@
 Google Drive Recursive Ownership Tool
 ==
 
+Note
+--
+
+[Google Drive allows transfering ownership only of Google Docs, Sheets, Slides, or Forms](https://support.google.com/drive/answer/2494893).
+
 Setup
 --
 
