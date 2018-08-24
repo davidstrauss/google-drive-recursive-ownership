@@ -17,12 +17,15 @@ NOTE: The Google Drive API does not allow suppressing notifications for change o
 
 ### Usage
 
-If transfer.py is contained in a folder listed in your system's PATH this can be run from anywhere. Otherwise it needs to be run from the directory where transfer.py is located.
+If `transfer.py` is contained in a folder listed in your system's `PATH` this can be run from anywhere. Otherwise it needs to be run from the directory where `transfer.py` is located.
 
-    python transfer.py PATH-PREFIX NEW-OWNER-EMAIL SHOW-ALREADY-OWNER
+    python  transfer.py  PATH-PREFIX  NEW-OWNER-EMAIL  SHOW-ALREADY-OWNER
     
  - `PATH-PREFIX` assumes use of "/" or "\" as appropriate for your operating system.
- - `SHOW-ALREADY-OWNER` "`true`"|"`false`" (default `true`) to hide feedback for files already set correctly
+
+   * The `PATH-PREFIX` folder must be in **My Drive** section. For shared folders right click and select _Add to My Drive_.
+
+ - `SHOW-ALREADY-OWNER` "`true`"|"`false`" (default `true`) to hide feedback for files already set correctly.
     
 Windows Example:
 

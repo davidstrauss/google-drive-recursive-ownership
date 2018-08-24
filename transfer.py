@@ -1,9 +1,9 @@
 #!/usr/bin/python
 
 import httplib2
-import apiclient.discovery
-import apiclient.http
-import apiclient.errors
+import googleapiclient.discovery
+import googleapiclient.http
+import googleapiclient.errors
 import oauth2client.client
 import sys
 import pprint
@@ -23,14 +23,14 @@ def get_drive_service():
     credentials = flow.step2_exchange(code)
     http = httplib2.Http()
     credentials.authorize(http)
-    drive_service = apiclient.discovery.build('drive', 'v2', http=http)
+    drive_service = googleapiclient.discovery.build('drive', 'v2', http=http)
     return drive_service
 
 def get_permission_id_for_email(service, email):
     try:
         id_resp = service.permissions().getIdForEmail(email=email).execute()
         return id_resp['id']
-    except apiclient.errors.HttpError as e:
+    except googleapiclient.errors.HttpError as e:
         print('An error occured: {}'.format(e))
 
 def show_info(service, drive_item, prefix, permission_id):
@@ -66,7 +66,7 @@ def grant_ownership(service, drive_item, prefix, permission_id, show_already_own
         permission['role'] = 'owner'
         print('    Upgrading existing permissions to ownership.')
         return service.permissions().update(fileId=drive_item['id'], permissionId=permission_id, body=permission, transferOwnership=True).execute()
-    except apiclient.errors.HttpError as e:
+    except googleapiclient.errors.HttpError as e:
         if e.resp.status != 404:
             print('An error occurred updating ownership permissions: {}'.format(e))
             return
@@ -77,7 +77,7 @@ def grant_ownership(service, drive_item, prefix, permission_id, show_already_own
                   'id': permission_id}
     try:
         service.permissions().insert(fileId=drive_item['id'], body=permission, emailMessage='Automated recursive transfer of ownership.').execute()
-    except apiclient.errors.HttpError as e:
+    except googleapiclient.errors.HttpError as e:
         print('An error occurred inserting ownership permissions: {}'.format(e))
 
 def process_all_files(service, callback=None, callback_args=None, minimum_prefix=None, current_prefix=None, folder_id='root'):
@@ -113,7 +113,7 @@ def process_all_files(service, callback=None, callback_args=None, minimum_prefix
             page_token = children.get('nextPageToken')
             if not page_token:
                 break
-        except apiclient.errors.HttpError as e:
+        except googleapiclient.errors.HttpError as e:
             print('An error occurred: {}'.format(e))
             break
 
