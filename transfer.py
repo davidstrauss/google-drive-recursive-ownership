@@ -110,6 +110,7 @@ def process_all_files(service, callback=None, callback_args=None, minimum_prefix
                         comparison_length = min(len(next_prefix), len(minimum_prefix))
                         if minimum_prefix[:comparison_length] == next_prefix[:comparison_length]:
                             process_all_files(service, callback, callback_args, minimum_prefix, next_prefix, item['id'])
+                            callback(service, item, current_prefix, **callback_args)
             page_token = children.get('nextPageToken')
             if not page_token:
                 break
