@@ -17,7 +17,7 @@ NOTE: The Google Drive API does not allow suppressing notifications for change o
 
 ### Usage
 
-First, replace the [sample](https://github.com/gsuitedevs/python-samples/blob/d4fa75401e9b637f67da6fe021801d8b4cbd8cd0/drive/driveapp/client_secrets.json) `client_secrets.json` with your own [client secrets](https://developers.google.com/api-client-library/python/guide/aaa_client_secrets). Otherwise, authorizations you create will be usable by anyone with access to the sample key (the entire internet).
+First, replace the [sample](https://github.com/gsuitedevs/python-samples/blob/d4fa75401e9b637f67da6fe021801d8b4cbd8cd0/drive/driveapp/client_secrets.json) `client_secrets.json` with your own [client secrets](https://github.com/googleapis/google-api-python-client/blob/master/docs/client-secrets.md). Otherwise, authorizations you create will be usable by anyone with access to the sample key (the entire internet).
 
 Next, if `transfer.py` is contained in a folder listed in your system's `PATH` this can be run from anywhere. Otherwise it needs to be run from the directory where `transfer.py` is located.
 
