@@ -52,3 +52,12 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Environments
+.env
+.venv
+# env/  # already ignored in distribution
+venv/
+ENV/
+env.bak/
+venv.bak/
