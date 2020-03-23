@@ -118,7 +118,8 @@ def process_all_files(service, callback=None, callback_args=None, minimum_prefix
             print('An error occurred: {}'.format(e))
             break
 
-if __name__ == '__main__':
+
+def main():
     if sys.version_info[0] > 2:
         minimum_prefix = sys.argv[1]
         new_owner = sys.argv[2]
@@ -135,3 +136,7 @@ if __name__ == '__main__':
     print('User {} is permission ID {}.'.format(new_owner, permission_id))
     process_all_files(service, grant_ownership, {'permission_id': permission_id, 'show_already_owned': show_already_owned }, minimum_prefix_split)
     #print(files)
+
+
+if __name__ == '__main__':
+    main()
