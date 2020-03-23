@@ -1,13 +1,16 @@
 #!/usr/bin/python
 
+import sys
+import pprint
+import os
+
+import six
 import httplib2
 import googleapiclient.discovery
 import googleapiclient.http
 import googleapiclient.errors
 import oauth2client.client
-import sys
-import pprint
-import os
+
 
 def get_drive_service():
     OAUTH2_SCOPE = 'https://www.googleapis.com/auth/drive'
@@ -16,10 +19,7 @@ def get_drive_service():
     flow.redirect_uri = oauth2client.client.OOB_CALLBACK_URN
     authorize_url = flow.step1_get_authorize_url()
     print('Use this link for authorization: {}'.format(authorize_url))
-    if sys.version_info[0] > 2:
-        code = input('Verification code: ').strip()
-    else:
-        code = raw_input('Verification code: ').strip()
+    code = six.moves.input('Verification code: ').strip()
     credentials = flow.step2_exchange(code)
     http = httplib2.Http()
     credentials.authorize(http)
@@ -120,14 +120,9 @@ def process_all_files(service, callback=None, callback_args=None, minimum_prefix
 
 
 def main():
-    if sys.version_info[0] > 2:
-        minimum_prefix = sys.argv[1]
-        new_owner = sys.argv[2]
-        show_already_owned = False if len(sys.argv) > 3 and sys.argv[3] == 'false' else True
-    else:
-        minimum_prefix = sys.argv[1].decode('utf-8')
-        new_owner = sys.argv[2].decode('utf-8')
-        show_already_owned = False if len(sys.argv) > 3 and sys.argv[3].decode('utf-8') == 'false' else True
+    minimum_prefix = six.text_type(sys.argv[1])
+    new_owner = six.text_type(sys.argv[2])
+    show_already_owned = False if len(sys.argv) > 3 and six.text_type(sys.argv[3]) == 'false' else True
     print('Changing all files at path "{}" to owner "{}"'.format(minimum_prefix, new_owner))
     minimum_prefix_split = minimum_prefix.split(os.path.sep)
     print('Prefix: {}'.format(minimum_prefix_split))
