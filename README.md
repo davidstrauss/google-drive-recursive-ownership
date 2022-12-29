@@ -23,7 +23,7 @@ Next, if `transfer.py` is contained in a folder listed in your system's `PATH` t
 
     python  transfer.py  PATH-PREFIX  NEW-OWNER-EMAIL  SHOW-ALREADY-OWNER
     
- - `PATH-PREFIX` assumes use of "/" or "\" as appropriate for your operating system.
+ - `PATH-PREFIX` assumes use of "`/`" or "`\`" as appropriate for your operating system.
 
    * The `PATH-PREFIX` folder must be in **My Drive** section. For shared folders right click and select _Add to My Drive_.
 
