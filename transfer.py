@@ -5,32 +5,42 @@ import pprint
 import os
 
 import six
-import httplib2
-import googleapiclient.discovery
-import googleapiclient.http
-import googleapiclient.errors
-import oauth2client.client
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 
 
 def get_drive_service():
-    OAUTH2_SCOPE = 'https://www.googleapis.com/auth/drive'
-    CLIENT_SECRETS = 'client_secrets.json'
-    flow = oauth2client.client.flow_from_clientsecrets(CLIENT_SECRETS, OAUTH2_SCOPE)
-    flow.redirect_uri = oauth2client.client.OOB_CALLBACK_URN
-    authorize_url = flow.step1_get_authorize_url()
-    print('Use this link for authorization: {}'.format(authorize_url))
-    code = six.moves.input('Verification code: ').strip()
-    credentials = flow.step2_exchange(code)
-    http = httplib2.Http()
-    credentials.authorize(http)
-    drive_service = googleapiclient.discovery.build('drive', 'v2', http=http)
+    os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
+    SCOPES = ['https://www.googleapis.com/auth/drive']
+    creds = None
+    # The file token.json stores the user's access and refresh tokens, and is
+    # created automatically when the authorization flow completes for the first
+    # time.
+    if os.path.exists("token.json"):
+        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+    # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                "client_secrets.json", SCOPES
+            )
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+        with open("token.json", "w") as token:
+            token.write(creds.to_json())
+    drive_service = build("drive", "v2", credentials=creds)
     return drive_service
 
 def get_permission_id_for_email(service, email):
     try:
         id_resp = service.permissions().getIdForEmail(email=email).execute()
         return id_resp['id']
-    except googleapiclient.errors.HttpError as e:
+    except HttpError as e:
         print('An error occured: {}'.format(e))
 
 def show_info(service, drive_item, prefix, permission_id):
@@ -66,7 +76,7 @@ def grant_ownership(service, drive_item, prefix, permission_id, show_already_own
         permission['role'] = 'owner'
         print('    Upgrading existing permissions to ownership.')
         return service.permissions().update(fileId=drive_item['id'], permissionId=permission_id, body=permission, transferOwnership=True).execute()
-    except googleapiclient.errors.HttpError as e:
+    except HttpError as e:
         if e.resp.status != 404:
             print('An error occurred updating ownership permissions: {}'.format(e))
             return
@@ -77,7 +87,7 @@ def grant_ownership(service, drive_item, prefix, permission_id, show_already_own
                   'id': permission_id}
     try:
         service.permissions().insert(fileId=drive_item['id'], body=permission, emailMessage='Automated recursive transfer of ownership.').execute()
-    except googleapiclient.errors.HttpError as e:
+    except HttpError as e:
         print('An error occurred inserting ownership permissions: {}'.format(e))
 
 def process_all_files(service, callback=None, callback_args=None, minimum_prefix=None, current_prefix=None, folder_id='root'):
@@ -114,7 +124,7 @@ def process_all_files(service, callback=None, callback_args=None, minimum_prefix
             page_token = children.get('nextPageToken')
             if not page_token:
                 break
-        except googleapiclient.errors.HttpError as e:
+        except HttpError as e:
             print('An error occurred: {}'.format(e))
             break
 
